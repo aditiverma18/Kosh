@@ -1,0 +1,13 @@
+{
+  "name": "kosh",
+  "version": "1.0.0",
+  "description": "Kosh — a payday-to-payday money planner for salaried professionals",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "npx --yes serve .",
+    "test": "node --test tests/core.test.js"
+  },
+  "engines": { "node": ">=20" },
+  "license": "MIT"
+}

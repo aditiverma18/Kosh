@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Kosh — make your salary last till payday</title>
+  <meta name="description" content="A payday-to-payday money planner for salaried professionals: safe-to-spend per day, budgets, savings goals and an EMI calculator.">
+  <meta name="theme-color" content="#17302C">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%23E3A008'/><circle cx='16' cy='16' r='7' fill='%2317302C'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>
+    // Apply saved theme before paint to avoid a flash.
+    try { const t = localStorage.getItem('kosh-theme'); if (t) document.documentElement.dataset.theme = t; } catch {}
+  </script>
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="shell">
+    <nav class="nav" aria-label="Main">
+      <a class="brand" href="#overview" aria-label="Kosh home">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14"/><circle cx="16" cy="16" r="7"/></svg>
+        <span>Kosh</span>
+      </a>
+      <ul class="nav-list">
+        <li><a href="#overview" data-nav="overview">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4v8l5 3"/></svg><span>Overview</span></a></li>
+        <li><a href="#transactions" data-nav="transactions">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span>Transactions</span></a></li>
+        <li><a href="#budgets" data-nav="budgets">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="4" rx="2"/><rect x="4" y="15" width="10" height="4" rx="2"/></svg><span>Budgets</span></a></li>
+        <li><a href="#goals" data-nav="goals">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V5l12 4-12 4"/></svg><span>Goals</span></a></li>
+        <li><a href="#tools" data-nav="tools">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h1m4 0h1M9 16h1m4 0h1"/></svg><span>Tools</span></a></li>
+      </ul>
+      <button class="theme-toggle" type="button" id="theme-toggle">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z"/></svg>
+        <span id="theme-label">Dark theme</span>
+      </button>
+    </nav>
+
+    <main id="main" tabindex="-1">
+      <!-- Overview -->
+      <section data-view="overview" aria-labelledby="h-overview">
+        <header class="view-head">
+          <div>
+            <h1 id="h-overview" tabindex="-1">Overview</h1>
+            <p class="sub" id="cycle-label"></p>
+          </div>
+          <button class="btn" type="button" data-open-add>Add transaction</button>
+        </header>
+        <div id="overview"></div>
+      </section>
+
+      <!-- Transactions -->
+      <section data-view="transactions" aria-labelledby="h-transactions" hidden>
+        <header class="view-head">
+          <div>
+            <h1 id="h-transactions" tabindex="-1">Transactions</h1>
+            <p class="sub" id="txn-summary" aria-live="polite"></p>
+          </div>
+          <div class="head-actions">
+            <button class="btn-quiet" type="button" id="export-csv">Export CSV</button>
+            <button class="btn" type="button" data-open-add>Add transaction</button>
+          </div>
+        </header>
+        <div class="toolbar" role="search">
+          <label class="field grow">
+            <span class="sr-only">Search transactions</span>
+            <input type="search" id="txn-search" placeholder="Search by note or category" autocomplete="off">
+          </label>
+          <label class="field">
+            <span class="sr-only">Filter by type</span>
+            <select id="txn-type">
+              <option value="all">All types</option>
+              <option value="expense">Expenses</option>
+              <option value="income">Income</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="sr-only">Filter by category</span>
+            <select id="txn-cat"></select>
+          </label>
+        </div>
+        <div class="panel" id="txn-list"></div>
+      </section>
+
+      <!-- Budgets -->
+      <section data-view="budgets" aria-labelledby="h-budgets" hidden>
+        <header class="view-head">
+          <div>
+            <h1 id="h-budgets" tabindex="-1">Budgets</h1>
+            <p class="sub">Set a limit per category for each pay cycle. Bars turn amber at 80% and red once you cross the limit.</p>
+          </div>
+        </header>
+        <ul class="panel budget-list" id="budget-list"></ul>
+      </section>
+
+      <!-- Goals -->
+      <section data-view="goals" aria-labelledby="h-goals" hidden>
+        <header class="view-head">
+          <div>
+            <h1 id="h-goals" tabindex="-1">Goals</h1>
+            <p class="sub">Save towards something specific. Kosh works out how much to put aside each month.</p>
+          </div>
+        </header>
+        <div class="goals-layout">
+          <ul class="goal-list" id="goal-list"></ul>
+          <form class="panel form" id="goal-form" novalidate>
+            <h2>New goal</h2>
+            <label class="field"><span>Name</span><input name="name" required maxlength="40" placeholder="Laptop upgrade"></label>
+            <label class="field"><span>Target amount (₹)</span><input name="target" type="number" min="1" inputmode="numeric" required placeholder="80000"></label>
+            <label class="field"><span>Already saved (₹)</span><input name="saved" type="number" min="0" inputmode="numeric" value="0"></label>
+            <label class="field"><span>Reach it by</span><input name="deadline" type="date" required></label>
+            <p class="form-error" id="goal-error" role="alert"></p>
+            <button class="btn" type="submit">Create goal</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Tools -->
+      <section data-view="tools" aria-labelledby="h-tools" hidden>
+        <header class="view-head">
+          <div>
+            <h1 id="h-tools" tabindex="-1">Tools</h1>
+            <p class="sub">Loan maths, currency conversion and your salary settings.</p>
+          </div>
+        </header>
+        <div class="tools-grid">
+          <form class="panel form" id="emi-form" novalidate>
+            <h2>EMI calculator</h2>
+            <label class="field"><span>Loan amount (₹)</span><input name="principal" type="number" min="1" inputmode="numeric" value="500000"></label>
+            <label class="field"><span>Interest rate (% a year)</span><input name="rate" type="number" min="0" max="50" step="0.1" inputmode="decimal" value="10.5"></label>
+            <label class="field"><span>Tenure (months)</span><input name="months" type="number" min="1" max="480" inputmode="numeric" value="60"></label>
+            <output id="emi-out" for="emi-form" aria-live="polite"></output>
+          </form>
+
+          <form class="panel form" id="fx-form" novalidate>
+            <h2>Currency converter</h2>
+            <label class="field"><span>Amount in rupees (₹)</span><input name="amount" type="number" min="0" inputmode="numeric" value="10000"></label>
+            <label class="field"><span>Convert to</span>
+              <select name="currency">
+                <option value="USD">US dollar</option>
+                <option value="EUR">Euro</option>
+                <option value="GBP">British pound</option>
+                <option value="AED">UAE dirham</option>
+                <option value="SGD">Singapore dollar</option>
+                <option value="AUD">Australian dollar</option>
+                <option value="CAD">Canadian dollar</option>
+                <option value="JPY">Japanese yen</option>
+              </select>
+            </label>
+            <output id="fx-out" for="fx-form" aria-live="polite"></output>
+            <p class="hint" id="fx-status"></p>
+          </form>
+
+          <form class="panel form" id="settings-form" novalidate>
+            <h2>Salary settings</h2>
+            <label class="field"><span>Monthly take-home salary (₹)</span><input name="salary" type="number" min="1" inputmode="numeric" required></label>
+            <label class="field"><span>Payday (day of the month)</span><input name="payday" type="number" min="1" max="31" inputmode="numeric" required></label>
+            <label class="field"><span>Keep aside for savings (%)</span><input name="savingsRate" type="number" min="0" max="90" inputmode="numeric" required></label>
+            <p class="form-error" id="settings-error" role="alert"></p>
+            <button class="btn" type="submit">Save settings</button>
+          </form>
+
+          <div class="panel form">
+            <h2>Your data</h2>
+            <p class="hint">Everything is stored in this browser only. Nothing is sent to a server.</p>
+            <button class="btn-quiet danger" type="button" id="reset-data">Reset to demo data</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Add transaction -->
+  <dialog id="txn-dialog" aria-labelledby="txn-dialog-title">
+    <form id="txn-form" class="form" novalidate>
+      <div class="dialog-head">
+        <h2 id="txn-dialog-title">Add transaction</h2>
+        <button class="icon-btn" type="button" data-close aria-label="Close">×</button>
+      </div>
+      <fieldset class="segmented">
+        <legend class="sr-only">Type</legend>
+        <label><input type="radio" name="type" value="expense" checked><span>Expense</span></label>
+        <label><input type="radio" name="type" value="income"><span>Income</span></label>
+      </fieldset>
+      <label class="field"><span>Amount (₹)</span>
+        <input name="amount" type="number" min="0" step="any" inputmode="decimal" aria-describedby="err-amount" placeholder="0">
+        <small class="field-error" id="err-amount"></small></label>
+      <label class="field"><span>Category</span>
+        <select name="category" aria-describedby="err-category"></select>
+        <small class="field-error" id="err-category"></small></label>
+      <label class="field"><span>Note (optional)</span>
+        <input name="note" maxlength="60" aria-describedby="err-note" placeholder="What was it for?">
+        <small class="field-error" id="err-note"></small></label>
+      <label class="field"><span>Date</span>
+        <input name="date" type="date" aria-describedby="err-date">
+        <small class="field-error" id="err-date"></small></label>
+      <div class="dialog-actions">
+        <button class="btn-quiet" type="button" data-close>Cancel</button>
+        <button class="btn" type="submit">Add transaction</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
